@@ -1,0 +1,11 @@
+jdbc:
+    write:
+        driver: com.microsoft.sqlserver.jdbc.SQLServerDriver
+        url: jdbc:sqlserver://10.180.139.246:1433;DatabaseName=Luken
+        username: sa
+        password: itec.sql.123
+    read:
+        driver: com.microsoft.sqlserver.jdbc.SQLServerDriver
+        url: jdbc:sqlserver://10.180.139.246:1433;DatabaseName=Luken?readOnly=true
+        username: sa
+        password: itec.sql.123

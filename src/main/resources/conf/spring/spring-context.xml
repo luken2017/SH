@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+       http://www.springframework.org/schema/beans/spring-beans-4.3.xsd  
+       http://www.springframework.org/schema/aop  
+       http://www.springframework.org/schema/aop/spring-aop-4.3.xsd  
+       http://www.springframework.org/schema/context  
+       http://www.springframework.org/schema/context/spring-context-4.3.xsd  
+       http://www.springframework.org/schema/tx  
+       http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+	<context:component-scan base-package="com.luken.*" />
+	<aop:aspectj-autoproxy />
+	
+	<!-- 加载配置文件 -->
+	<bean id="yamlProperties"
+		class="org.springframework.beans.factory.config.YamlPropertiesFactoryBean">
+		<property name="resources" value="classpath:sh/config.yml" />
+	</bean>
+	<context:property-placeholder
+		properties-ref="yamlProperties" />
+
+	<!-- 连接池 -->  
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource"  
+        destroy-method="close">  
+        <property name="driverClassName" value="${jdbc.write.driver}" />  
+        <property name="url" value="${jdbc.write.url}" />  
+        <property name="username" value="${jdbc.write.username}" />  
+        <property name="password" value="${jdbc.write.password}" />  
+    </bean> 
+    
+	<!-- 配置sessionFactory -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean"
+		parent="abstractSessionFactory">
+		<property name="mappingLocations" value="classpath:conf/hbm/*.hbm.xml" />
+	</bean>
+	<bean id="hibernateProperties"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="properties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.SQLServer2012Dialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.transaction.flush_before_completion">true</prop>
+				<prop key="hibernate.jdbc.batch_size">25</prop>
+				<prop key="hibernate.cache.use_second_level_cache">false</prop>
+				<prop key="hibernate.transaction.auto_close_session">false</prop>
+				<prop key="hibernate.connection.release_mode">auto</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="abstractSessionFactory" abstract="true">
+		<property name="dataSource" ref="dataSource" />
+		<property name="hibernateProperties">
+			<ref bean="hibernateProperties" />
+		</property>
+	</bean>
+
+	<!-- 配置Spring的事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+
+	<!-- 配置tx 注解事务 -->
+	<tx:advice id="txHelperAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="*" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+
+	<tx:advice id="txServiceAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRED" />
+		</tx:attributes>
+	</tx:advice>
+
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+</beans>

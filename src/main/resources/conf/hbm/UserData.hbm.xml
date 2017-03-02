@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping>
+	<class name="com.luken.model.UserData" table="user_data2">
+		<id name = "id">
+			<column name="id" />
+			<generator class="uuid2" />
+		</id>
+		<property name="userName" type="java.lang.String">
+			<column name="username" not-null="true" />
+		</property>
+		<property name="email" type="java.lang.String">
+			<column name="email" not-null="true"/>			
+		</property>
+		<property name="password" type="java.lang.String">
+			<column name="password" not-null="true" />
+		</property>
+		<property name="createdDateTime" type="java.util.Date">
+			<column name="created_date_time" not-null="true" />
+		</property>
+		<property name="modifiedDateTime" type="java.util.Date">
+            <column name="modified_date_time" />
+        </property>
+	</class>
+</hibernate-mapping>
